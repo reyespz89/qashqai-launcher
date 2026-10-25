@@ -1,16 +1,16 @@
-name: Build Qashqai Launcher APK
+﻿name: Build Qashqai Launcher APK
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:   # Permite correrlo manualmente desde GitHub
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
+      - name: Checkout codigo
         uses: actions/checkout@v4
 
       - name: Configurar Java 17
@@ -21,14 +21,19 @@ jobs:
 
       - name: Configurar Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+
+      - name: Aceptar licencias SDK
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Dar permisos a Gradle
         run: chmod +x gradlew
 
-      - name: Compilar APK (debug — no necesita firma)
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Compilar APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Subir APK como artifact descargable
+      - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: qashqai-launcher-v17
