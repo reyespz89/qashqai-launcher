@@ -1,0 +1,911 @@
+<title>Qashqai Launcher BMW</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@100;200;300;400;500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  background:#000;
+  font-family:'DM Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── RAÍZ 16:9 SIEMPRE LANDSCAPE ── */
+.root{
+  width:  min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9  / 16));
+  position:relative;overflow:hidden;
+  display:grid;
+  grid-template-rows: 20px 1fr 48px;
+  font-size: calc(min(100vw, calc(100vh * 16 / 9)) / 82);
+  color:#e8ecf2;
+}
+
+/* ── FONDO ANIMADO — respiración BMW ── */
+.root-bg{
+  position:absolute;inset:0;z-index:0;
+  background:#070a0f;
+  overflow:hidden;
+}
+.root-bg::before{
+  content:'';position:absolute;
+  width:120%;height:120%;
+  top:-10%;left:-10%;
+  background:
+    radial-gradient(ellipse 55% 45% at 20% 30%, rgba(30,70,180,.07) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 50% at 80% 70%, rgba(20,50,160,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 35% at 55% 20%, rgba(60,100,220,.04) 0%, transparent 55%);
+  animation:bgbreathe 8s ease-in-out infinite alternate;
+}
+.root-bg::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 100%, rgba(10,25,80,.35) 0%, transparent 70%);
+}
+@keyframes bgbreathe{
+  0%  {transform:scale(1)   rotate(0deg);  opacity:.7}
+  50% {transform:scale(1.04)rotate(.8deg); opacity:1}
+  100%{transform:scale(1.02)rotate(-.4deg);opacity:.85}
+}
+
+/* Todas las capas sobre el fondo */
+.root>*:not(.root-bg){position:relative;z-index:1}
+
+/* ── STATUS BAR ── */
+.sb{
+  background:rgba(5,7,16,.85);
+  border-bottom:1px solid rgba(120,160,255,.08);
+  display:flex;align-items:center;
+  padding:0 1.2em;gap:.9em;
+  font-size:.72em;font-weight:300;
+  color:rgba(200,215,255,.35);letter-spacing:.08em;
+  position:relative;z-index:10;
+}
+.sb-r{margin-left:auto;display:flex;align-items:center;gap:.7em}
+.sbi{width:.85em;height:.85em;fill:rgba(200,215,255,.32);flex-shrink:0}
+.sb-sep{width:1px;height:.9em;background:rgba(120,160,255,.12)}
+.sb-signal{display:flex;align-items:flex-end;gap:1.5px}
+.sb-signal span{width:2px;border-radius:1px;background:rgba(200,215,255,.35)}
+.sb-bmw{
+  display:flex;align-items:center;gap:.4em;
+  color:rgba(100,160,255,.70);font-size:.9em;
+}
+.sb-bmw-dot{
+  width:.5em;height:.5em;border-radius:50%;
+  background:#4a9fff;
+  box-shadow:0 0 .4em .1em rgba(74,159,255,.55);
+}
+/* Velocidad GPS en status bar */
+.sb-speed{
+  display:flex;align-items:baseline;gap:.2em;
+  color:rgba(200,220,255,.55);
+}
+.sb-speed-val{font-size:1.1em;font-weight:300;font-variant-numeric:tabular-nums}
+.sb-speed-unit{font-size:.78em;font-weight:200;color:rgba(160,195,255,.30);letter-spacing:.06em}
+/* Límite de velocidad */
+.sb-limit{
+  display:flex;align-items:center;justify-content:center;
+  width:1.55em;height:1.55em;
+  border-radius:50%;
+  border:1.5px solid rgba(255,200,80,.55);
+  background:rgba(255,200,80,.08);
+  font-size:.78em;font-weight:400;
+  color:rgba(255,220,100,.70);
+  letter-spacing:0;
+}
+
+/* ── ZONA PRINCIPAL 3 COLUMNAS ── */
+.main{
+  display:grid;
+  grid-template-columns: 260px 1fr 240px;
+  overflow:hidden;
+  position:relative;z-index:1;
+}
+.main::after{
+  content:'';position:absolute;
+  top:0;bottom:0;left:260px;
+  width:1px;
+  background:linear-gradient(180deg,transparent 0%,rgba(74,159,255,.18) 30%,rgba(74,159,255,.22) 50%,rgba(74,159,255,.18) 70%,transparent 100%);
+  pointer-events:none;z-index:2;
+}
+.main::before{
+  content:'';position:absolute;
+  top:0;bottom:0;right:240px;
+  width:1px;
+  background:linear-gradient(180deg,transparent 0%,rgba(74,159,255,.18) 30%,rgba(74,159,255,.22) 50%,rgba(74,159,255,.18) 70%,transparent 100%);
+  pointer-events:none;z-index:2;
+}
+
+/* ── PANEL IZQUIERDO ── */
+.p-left{
+  display:flex;flex-direction:column;
+  background:rgba(6,9,14,.80);
+  overflow:hidden;
+}
+
+/* PUNTO 1 — Reloj + Clima unificado BMW */
+.clock-weather{
+  padding:.65em 1.1em .6em;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(74,159,255,.07);
+  display:flex;flex-direction:column;
+  gap:.45em;
+}
+.clk-time{
+  font-size:3.5em;font-weight:100;
+  color:#ddeaff;
+  letter-spacing:-.05em;line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.clk-date{
+  font-size:.57em;font-weight:200;
+  color:rgba(160,190,255,.28);
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+/* Clima — dentro del mismo bloque */
+.weather-inline{
+  display:flex;align-items:center;gap:.7em;
+  padding:.35em .5em;
+  background:rgba(74,159,255,.05);
+  border:1px solid rgba(74,159,255,.08);
+  border-radius:.5em;
+  margin-top:.1em;
+}
+.w-icon{font-size:1.4em;line-height:1;filter:brightness(.85)}
+.w-temps{display:flex;flex-direction:column;gap:.05em}
+.w-temp{font-size:1.1em;font-weight:100;color:#c8dcff;line-height:1}
+.w-cond{font-size:.52em;font-weight:200;color:rgba(140,175,255,.28);letter-spacing:.04em}
+/* Temperatura interior del auto */
+.w-interior{
+  margin-left:auto;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.05em;
+}
+.w-int-val{font-size:.9em;font-weight:200;color:rgba(160,200,255,.45)}
+.w-int-lbl{font-size:.48em;font-weight:200;color:rgba(100,145,220,.25);letter-spacing:.06em;text-transform:uppercase}
+
+/* Grid apps */
+.apps-left{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr 1fr;
+  gap:.5px;
+  background:rgba(74,159,255,.04);
+}
+.app{
+  background:rgba(7,9,14,.80);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:.45em;cursor:pointer;
+  border:none;font-family:inherit;color:inherit;
+  position:relative;overflow:hidden;
+  transition:background .12s;
+}
+.app::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(74,159,255,.0);
+  transition:background .12s;
+}
+.app:hover::before,.app:active::before{background:rgba(74,159,255,.08)}
+.app-icon{
+  width:1.9em;height:1.9em;border-radius:.65em;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(74,159,255,.09);
+  border:1px solid rgba(74,159,255,.14);
+  position:relative;z-index:1;
+}
+.app-icon svg{width:1.05em;height:1.05em;fill:rgba(140,185,255,.60)}
+.app span{font-size:.52em;font-weight:300;color:rgba(160,195,255,.28);letter-spacing:.05em;position:relative;z-index:1}
+.app.app-nav .app-icon{background:rgba(74,159,255,.13);border-color:rgba(74,159,255,.22)}
+.app.app-nav .app-icon svg{fill:#5ba3ff}
+.app.app-tel .app-icon{background:rgba(52,211,153,.10);border-color:rgba(52,211,153,.18)}
+.app.app-tel .app-icon svg{fill:#34d399}
+.app.app-music .app-icon{background:rgba(251,146,60,.10);border-color:rgba(251,146,60,.18)}
+.app.app-music .app-icon svg{fill:#fb923c}
+
+/* ── PANEL CENTRAL ── */
+.p-center{
+  display:flex;flex-direction:column;
+  background:rgba(5,8,13,.75);
+  overflow:hidden;
+}
+.c-tabs{
+  display:flex;align-items:stretch;
+  height:2.8em;
+  background:rgba(4,6,11,.85);
+  border-bottom:1px solid rgba(74,159,255,.08);
+  flex-shrink:0;
+}
+.c-tab{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:.5em;
+  background:none;border:none;cursor:pointer;font-family:inherit;
+  font-size:.58em;font-weight:300;
+  color:rgba(140,175,255,.28);
+  letter-spacing:.10em;text-transform:uppercase;
+  transition:color .15s;
+  border-bottom:1.5px solid transparent;margin-bottom:-1px;
+  position:relative;
+}
+.c-tab svg{width:1em;height:1em;fill:currentColor;opacity:.7}
+.c-tab:hover{color:rgba(140,175,255,.55)}
+.c-tab.active{color:#5ba3ff;border-bottom-color:#4a9fff}
+.c-tab.active svg{opacity:1}
+.tab-dot{width:.38em;height:.38em;border-radius:50%;background:#22c55e;box-shadow:0 0 .35em #22c55e;flex-shrink:0}
+.c-pane{display:none;flex:1;flex-direction:column;overflow:hidden}
+.c-pane.active{display:flex}
+
+/* Android Auto pane */
+.aa-zone{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1em;
+  background:none;border:none;cursor:pointer;
+  font-family:inherit;color:inherit;
+  position:relative;overflow:hidden;
+  transition:opacity .12s;padding:1em;
+}
+.aa-zone:active{opacity:.75}
+.bmw-orb{
+  width:4em;height:4em;border-radius:50%;
+  position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.bmw-orb::before{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(74,159,255,.20);
+  animation:orbring 3s ease-in-out infinite;
+}
+.bmw-orb::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 38% 35%,rgba(140,195,255,.30) 0%,rgba(74,159,255,.60) 40%,rgba(30,80,200,.75) 80%,rgba(15,40,130,.90) 100%);
+  box-shadow:0 0 1.5em rgba(74,159,255,.50),inset 0 .15em .5em rgba(200,230,255,.15);
+  animation:orbpulse 2.5s ease-in-out infinite;
+}
+.bmw-orb-icon{position:relative;z-index:1;width:1.7em;height:1.7em;fill:#c8e4ff}
+@keyframes orbring{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.06);opacity:.8}}
+@keyframes orbpulse{
+  0%,100%{box-shadow:0 0 1.5em rgba(74,159,255,.50),inset 0 .15em .5em rgba(200,230,255,.15)}
+  50%{box-shadow:0 0 2.2em rgba(74,159,255,.70),inset 0 .15em .6em rgba(200,230,255,.22)}
+}
+.aa-title{font-size:.95em;font-weight:200;color:rgba(200,220,255,.75);letter-spacing:.04em}
+.aa-sub{font-size:.55em;font-weight:200;color:rgba(100,150,255,.38);letter-spacing:.08em;text-transform:uppercase}
+.aa-chip{
+  display:flex;align-items:center;gap:.45em;
+  background:rgba(74,159,255,.07);border:1px solid rgba(74,159,255,.15);
+  border-radius:100px;padding:.3em 1em;
+  font-size:.52em;font-weight:200;color:rgba(140,185,255,.50);letter-spacing:.06em;
+}
+.aa-chip-led{width:.38em;height:.38em;border-radius:50%;background:#22c55e;box-shadow:0 0 .4em #22c55e}
+
+/* Radio pane */
+.radio-zone{flex:1;display:flex;flex-direction:column;padding:.7em 1.1em .5em;gap:.5em}
+.radio-header{display:flex;align-items:flex-start;justify-content:space-between}
+.radio-freq{font-size:1.9em;font-weight:100;color:#c8dcff;letter-spacing:.02em;line-height:1}
+.radio-band{font-size:.48em;font-weight:200;color:rgba(74,159,255,.50);margin-top:.3em;letter-spacing:.14em;text-transform:uppercase}
+.radio-station{text-align:right;font-size:.62em;font-weight:200;color:rgba(200,220,255,.40);letter-spacing:.04em}
+.radio-live{font-size:.5em;font-weight:200;color:rgba(74,159,255,.30);letter-spacing:.08em;margin-top:.2em;text-transform:uppercase}
+
+/* PUNTO 5 — Presets Radio */
+.radio-presets{
+  display:flex;gap:.35em;flex-shrink:0;
+}
+.preset-btn{
+  flex:1;background:rgba(74,159,255,.06);
+  border:1px solid rgba(74,159,255,.10);
+  border-radius:.4em;padding:.3em .3em;
+  font-family:inherit;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:.1em;
+  transition:background .10s,border-color .10s;
+}
+.preset-btn:hover,.preset-btn.active-preset{
+  background:rgba(74,159,255,.16);border-color:rgba(74,159,255,.35);
+}
+.preset-btn.active-preset .p-freq{color:#5ba3ff}
+.p-name{font-size:.42em;font-weight:300;color:rgba(140,175,255,.35);letter-spacing:.04em;white-space:nowrap}
+.p-freq{font-size:.50em;font-weight:200;color:rgba(180,210,255,.45);font-variant-numeric:tabular-nums}
+
+.audio-viz{flex:1;display:flex;align-items:flex-end;gap:2px;padding:.15em 0}
+.avb{flex:1;border-radius:2px 2px 0 0;background:linear-gradient(180deg,rgba(74,159,255,.65) 0%,rgba(30,90,220,.20) 100%);animation:avb var(--d,.5s) ease-in-out infinite alternate;min-height:2px}
+@keyframes avb{from{height:2px}to{height:var(--h,18px)}}
+.radio-controls{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:.35em;border-top:1px solid rgba(74,159,255,.07);
+}
+.rc{background:none;border:none;cursor:pointer;padding:.35em .6em;border-radius:.5em;color:rgba(140,175,255,.35);font-family:inherit;transition:color .10s,background .10s}
+.rc:hover{color:rgba(140,175,255,.70);background:rgba(74,159,255,.07)}
+.rc svg{width:1.2em;height:1.2em;fill:currentColor;display:block}
+.rc.play-btn{background:rgba(74,159,255,.12);border:1px solid rgba(74,159,255,.20);border-radius:.55em;color:#5ba3ff}
+.rc.play-btn:hover{background:rgba(74,159,255,.22)}
+.rc.play-btn svg{width:1.4em;height:1.4em}
+
+/* ── PANEL DERECHO ── */
+.p-right{
+  display:flex;flex-direction:column;
+  background:rgba(6,9,14,.80);
+  overflow:hidden;
+}
+.nav-zone{
+  flex:0 0 50%;
+  background:rgba(6,9,16,.80);
+  border-bottom:1px solid rgba(74,159,255,.07);
+  display:flex;flex-direction:column;
+  padding:.65em 1em .55em;gap:.45em;
+}
+.zone-label{
+  font-size:.46em;font-weight:300;
+  color:rgba(74,159,255,.35);
+  letter-spacing:.18em;text-transform:uppercase;
+  padding-bottom:.3em;
+  border-bottom:1px solid rgba(74,159,255,.06);
+}
+
+/* PUNTO 4 — Nav con estado visual */
+.nav-empty{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:.5em;cursor:pointer;
+  background:none;border:none;font-family:inherit;color:inherit;
+  transition:opacity .10s;
+}
+.nav-empty:active{opacity:.7}
+.nav-empty-icon{
+  width:2em;height:2em;border-radius:50%;
+  border:1px dashed rgba(74,159,255,.20);
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-empty-icon svg{width:1.1em;height:1.1em;fill:rgba(74,159,255,.30)}
+.nav-empty-text{font-size:.55em;font-weight:200;color:rgba(100,145,220,.30);letter-spacing:.06em}
+.nav-empty-sub{font-size:.48em;font-weight:200;color:rgba(74,159,255,.18);letter-spacing:.04em}
+
+/* Nav con ruta activa (oculto por defecto) */
+.nav-active{display:none;flex-direction:column;gap:.4em;flex:1}
+.nav-icon-wrap{width:2em;height:2em;border-radius:.6em;background:rgba(74,159,255,.10);border:1px solid rgba(74,159,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-icon-wrap svg{width:1.1em;height:1.1em;fill:#5ba3ff}
+.nav-title{font-size:.78em;font-weight:200;color:rgba(200,220,255,.70)}
+.nav-sub{font-size:.50em;font-weight:200;color:rgba(74,159,255,.40);letter-spacing:.04em}
+.nav-row{display:flex;align-items:center;gap:.55em}
+.nav-pills{display:flex;gap:.3em}
+.nav-pill{flex:1;background:rgba(74,159,255,.06);border:1px solid rgba(74,159,255,.10);border-radius:.4em;padding:.28em .4em;font-size:.44em;font-weight:200;color:rgba(140,175,255,.28);letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:1px}
+.nav-pill strong{font-size:1.2em;font-weight:200;color:rgba(200,220,255,.50);display:block}
+
+.apps-right{
+  flex:1;display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:.5px;background:rgba(74,159,255,.04);
+}
+
+/* ── BARRA INFERIOR ── */
+.bottom{
+  background:rgba(4,6,11,.90);
+  border-top:1px solid rgba(74,159,255,.09);
+  display:flex;align-items:center;
+  padding:0 .6em;gap:.1em;
+  position:relative;z-index:1;
+}
+.bb-home{
+  display:flex;align-items:center;justify-content:center;
+  width:2.8em;height:100%;
+  background:none;border:none;cursor:pointer;
+  color:rgba(140,175,255,.30);font-family:inherit;
+  transition:color .10s;
+  border-right:1px solid rgba(74,159,255,.08);
+  margin-right:.3em;flex-shrink:0;
+}
+.bb-home:hover{color:#5ba3ff}
+.bb-home svg{width:1.1em;height:1.1em;fill:currentColor}
+.vsep{width:1px;height:1.6em;background:rgba(74,159,255,.08);margin:0 .2em;flex-shrink:0}
+.bba{
+  display:flex;flex-direction:column;align-items:center;
+  gap:.12em;padding:.25em .6em;border-radius:.5em;
+  background:none;border:none;cursor:pointer;
+  font-family:inherit;color:inherit;
+  transition:background .10s;flex-shrink:0;
+}
+.bba:hover{background:rgba(74,159,255,.07)}
+.bba svg{width:1.0em;height:1.0em;fill:rgba(140,175,255,.30)}
+.bba span{font-size:.40em;font-weight:300;color:rgba(100,145,220,.25);letter-spacing:.04em;white-space:nowrap}
+.bba.on svg{fill:#4a9fff}
+.bba.on span{color:rgba(74,159,255,.55)}
+.bba.on{background:rgba(74,159,255,.06)}
+.bb-flex{flex:1}
+.bb-vol{
+  display:flex;align-items:center;gap:.45em;
+  padding:0 .65em;height:100%;
+  border-left:1px solid rgba(74,159,255,.08);flex-shrink:0;
+}
+.vol-icon svg{width:.9em;height:.9em;fill:rgba(140,175,255,.28)}
+.vol-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:1.6em;height:1.6em;
+  background:rgba(74,159,255,.08);border:1px solid rgba(74,159,255,.15);
+  border-radius:.45em;cursor:pointer;font-family:inherit;
+  color:rgba(140,175,255,.55);font-size:.9em;font-weight:300;
+  transition:background .10s,color .10s;flex-shrink:0;user-select:none;
+}
+.vol-btn:hover{background:rgba(74,159,255,.18);color:#8ab8ff}
+.vol-btn:active{background:rgba(74,159,255,.30)}
+.vol-display{min-width:2.8em;text-align:center;font-size:.68em;font-weight:200;color:rgba(180,210,255,.55);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+
+/* ── PUNTO 7 — MODO NOCHE (rojo/ámbar) ── */
+.root.night-mode{
+  --night-c: rgba(255,80,40,.10);
+}
+.root.night-mode .root-bg::before{
+  background:
+    radial-gradient(ellipse 55% 45% at 20% 30%, rgba(180,50,20,.08) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 50% at 80% 70%, rgba(140,40,10,.06) 0%, transparent 60%);
+}
+.root.night-mode .sb{background:rgba(12,4,3,.90);border-bottom-color:rgba(200,60,20,.08)}
+.root.night-mode .main::before,
+.root.night-mode .main::after{
+  background:linear-gradient(180deg,transparent 0%,rgba(200,70,20,.15) 30%,rgba(200,70,20,.20) 50%,rgba(200,70,20,.15) 70%,transparent 100%);
+}
+.root.night-mode .p-left,
+.root.night-mode .p-center,
+.root.night-mode .p-right{background:rgba(10,3,2,.82)}
+.root.night-mode .c-tabs{background:rgba(12,4,3,.88);border-bottom-color:rgba(200,60,20,.08)}
+.root.night-mode .c-tab.active{color:#ff7040;border-bottom-color:#d04020}
+.root.night-mode .bottom{background:rgba(10,3,2,.92);border-top-color:rgba(200,60,20,.09)}
+.root.night-mode .bba.on{background:rgba(200,60,20,.08)}
+.root.night-mode .bba.on svg{fill:#e06030}
+.root.night-mode .bba.on span{color:rgba(220,90,40,.55)}
+.root.night-mode .clk-time{color:#ffe0d0}
+.root.night-mode .bmw-orb::after{
+  background:radial-gradient(circle at 38% 35%,rgba(255,180,100,.25) 0%,rgba(220,80,30,.60) 40%,rgba(160,40,10,.75) 80%,rgba(100,20,5,.90) 100%);
+  box-shadow:0 0 1.5em rgba(220,80,30,.50),inset 0 .15em .5em rgba(255,180,80,.15);
+}
+.root.night-mode .nav-zone,.root.night-mode .nav-zone{background:rgba(10,4,2,.82)}
+.root.night-mode .sb-bmw-dot{background:#d05020;box-shadow:0 0 .4em .1em rgba(210,80,30,.55)}
+.root.night-mode #btn-night.on svg{fill:#e06030}
+
+/* ── PUNTO 3 — OVERLAY LLAMADA ENTRANTE ── */
+.call-overlay{
+  position:absolute;
+  top:.8em;left:50%;transform:translateX(-50%) translateY(-4em);
+  z-index:100;
+  background:rgba(8,12,20,.94);
+  border:1px solid rgba(74,159,255,.20);
+  border-radius:.9em;
+  padding:.6em 1em .6em .8em;
+  display:flex;align-items:center;gap:.8em;
+  min-width:16em;
+  box-shadow:0 .5em 2em rgba(0,0,0,.50), 0 0 0 1px rgba(74,159,255,.08);
+  transition:transform .30s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+  opacity:0;pointer-events:none;
+}
+.call-overlay.visible{
+  transform:translateX(-50%) translateY(0);
+  opacity:1;pointer-events:auto;
+}
+.call-avatar{
+  width:2.6em;height:2.6em;border-radius:50%;
+  background:linear-gradient(135deg,rgba(74,159,255,.25),rgba(30,80,200,.40));
+  border:1px solid rgba(74,159,255,.25);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.call-avatar svg{width:1.3em;height:1.3em;fill:rgba(140,185,255,.60)}
+.call-info{flex:1}
+.call-name{font-size:.72em;font-weight:300;color:rgba(220,235,255,.80);letter-spacing:.02em}
+.call-status{font-size:.50em;font-weight:200;color:rgba(74,159,255,.45);letter-spacing:.06em;text-transform:uppercase;margin-top:.15em}
+.call-btns{display:flex;gap:.5em}
+.call-btn{
+  width:2em;height:2em;border-radius:50%;
+  border:none;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .10s;
+}
+.call-btn:active{opacity:.75}
+.call-btn.answer{background:rgba(34,197,94,.20);border:1px solid rgba(34,197,94,.35)}
+.call-btn.answer svg{fill:#22c55e}
+.call-btn.reject{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.30)}
+.call-btn.reject svg{fill:#ef4444}
+.call-btn svg{width:1em;height:1em}
+/* Pulso de llamada entrante */
+@keyframes callpulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.35)}60%{box-shadow:0 0 0 .4em rgba(34,197,94,.0)}}
+.call-overlay.visible .call-btn.answer{animation:callpulse 1.5s ease-out infinite}
+</style>
+
+<div class="root" id="root">
+  <div class="root-bg"></div>
+
+  <!-- STATUS BAR -->
+  <div class="sb">
+    <span id="sbt">14:29</span>
+    <div class="sb-sep"></div>
+    <span id="sbd">Dom, 25 Oct</span>
+    <!-- VELOCIDAD GPS -->
+    <div class="sb-sep"></div>
+    <div class="sb-speed">
+      <span class="sb-speed-val" id="gps-speed">0</span>
+      <span class="sb-speed-unit">km/h</span>
+    </div>
+    <div class="sb-limit" id="speed-limit">60</div>
+    <div class="sb-bmw">
+      <div class="sb-bmw-dot"></div>
+      ZLink
+    </div>
+    <div class="sb-r">
+      <svg class="sbi" viewBox="0 0 24 24"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29z"/></svg>
+      <svg class="sbi" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <div class="sb-signal">
+        <span style="height:.3em"></span><span style="height:.46em"></span>
+        <span style="height:.62em"></span><span style="height:.78em"></span>
+      </div>
+      <div class="sb-sep"></div>
+      <svg class="sbi" viewBox="0 0 24 24"><rect x="1" y="7" width="18" height="10" rx="2" fill="none" stroke="rgba(180,210,255,.35)" stroke-width="1.5"/><rect x="19" y="10" width="3" height="4" rx="1" fill="rgba(140,175,255,.28)"/><rect x="2.5" y="8.5" width="11" height="7" rx="1" fill="rgba(180,210,255,.40)"/></svg>
+      <span style="color:rgba(180,210,255,.35);font-size:.82em">75%</span>
+    </div>
+  </div>
+
+  <!-- OVERLAY LLAMADA ENTRANTE -->
+  <div class="call-overlay" id="call-overlay">
+    <div class="call-avatar">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    </div>
+    <div class="call-info">
+      <div class="call-name" id="caller-name">María González</div>
+      <div class="call-status">Llamada entrante</div>
+    </div>
+    <div class="call-btns">
+      <button class="call-btn answer" onclick="dismissCall()">
+        <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      </button>
+      <button class="call-btn reject" onclick="dismissCall()">
+        <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.3 1L6.6 10.8zM19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ZONA PRINCIPAL 3 COLUMNAS -->
+  <div class="main">
+
+    <!-- PANEL IZQUIERDO -->
+    <div class="p-left">
+      <!-- PUNTO 1: Reloj + Clima unificados -->
+      <div class="clock-weather">
+        <div class="clk-time" id="clk">14:29</div>
+        <div class="clk-date" id="cld">domingo, 25 de octubre de 2026</div>
+        <div class="weather-inline">
+          <div class="w-icon">⛅</div>
+          <div class="w-temps">
+            <div class="w-temp">24°C</div>
+            <div class="w-cond">Parcialmente nublado</div>
+          </div>
+          <div class="w-interior">
+            <div class="w-int-val">22°C</div>
+            <div class="w-int-lbl">Interior</div>
+          </div>
+        </div>
+      </div>
+      <div class="apps-left">
+        <button class="app app-nav">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+          <span>Navegar</span>
+        </button>
+        <button class="app app-tel" id="btn-demo-call" title="Demo llamada entrante">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
+          <span>Teléfono</span>
+        </button>
+        <button class="app app-music">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+          <span>Música</span>
+        </button>
+        <button class="app">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12c0 1.1.89 2 2 2h16c1.11 0 2-.9 2-2V8c0-1.11-.89-2-2-2H8.3l8.26-3.34L15.88 1 3.24 6.15zM7 20c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-8h-2v-2h-2v2H4V8h16v4z"/></svg></div>
+          <span>Radio</span>
+        </button>
+        <button class="app">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+          <span>Mensajes</span>
+        </button>
+        <button class="app">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+          <span>Ajustes</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL CENTRAL -->
+    <div class="p-center">
+      <div class="c-tabs">
+        <button class="c-tab active" id="tab-aa" onclick="switchTab('aa')">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Android Auto
+          <div class="tab-dot"></div>
+        </button>
+        <button class="c-tab" id="tab-radio" onclick="switchTab('radio')">
+          <svg viewBox="0 0 24 24"><path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12c0 1.1.89 2 2 2h16c1.11 0 2-.9 2-2V8c0-1.11-.89-2-2-2H8.3l8.26-3.34L15.88 1 3.24 6.15zM7 20c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-8h-2v-2h-2v2H4V8h16v4z"/></svg>
+          Radio FM
+        </button>
+      </div>
+
+      <div class="c-pane active" id="pane-aa">
+        <button class="aa-zone" id="aa-btn">
+          <div class="bmw-orb">
+            <svg class="bmw-orb-icon" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          </div>
+          <div class="aa-title">Android Auto</div>
+          <div class="aa-sub">Toca para conectar vía ZLink</div>
+          <div class="aa-chip">
+            <div class="aa-chip-led"></div>
+            ZLink listo · Android 15
+          </div>
+        </button>
+      </div>
+
+      <div class="c-pane" id="pane-radio">
+        <div class="radio-zone">
+          <div class="radio-header">
+            <div>
+              <div class="radio-freq" id="radio-freq-disp">FM 93.9</div>
+              <div class="radio-band">Estéreo</div>
+            </div>
+            <div>
+              <div class="radio-station" id="radio-station-disp">Radio Dos</div>
+              <div class="radio-live">En vivo</div>
+            </div>
+          </div>
+          <!-- PUNTO 5 — Presets de emisoras -->
+          <div class="radio-presets">
+            <button class="preset-btn active-preset" onclick="setPreset(this,'FM 93.9','Radio Dos')">
+              <div class="p-name">Radio Dos</div>
+              <div class="p-freq">93.9</div>
+            </button>
+            <button class="preset-btn" onclick="setPreset(this,'FM 96.7','UCR')">
+              <div class="p-name">UCR</div>
+              <div class="p-freq">96.7</div>
+            </button>
+            <button class="preset-btn" onclick="setPreset(this,'FM 99.5','Omega')">
+              <div class="p-name">Omega</div>
+              <div class="p-freq">99.5</div>
+            </button>
+            <button class="preset-btn" onclick="setPreset(this,'FM 101.5','Corazón')">
+              <div class="p-name">Corazón</div>
+              <div class="p-freq">101.5</div>
+            </button>
+            <button class="preset-btn" onclick="setPreset(this,'FM 107.5','Actual')">
+              <div class="p-name">Actual</div>
+              <div class="p-freq">107.5</div>
+            </button>
+          </div>
+          <div class="audio-viz" id="aviz"></div>
+          <div class="radio-controls">
+            <button class="rc"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="rc"><svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg></button>
+            <button class="rc play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            <button class="rc"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" style="opacity:.3"/><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+            <button class="rc"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL DERECHO -->
+    <div class="p-right">
+      <div class="nav-zone">
+        <div class="zone-label">Navegación</div>
+        <!-- PUNTO 4 — Estado visual sin ruta -->
+        <button class="nav-empty" id="nav-empty-btn" onclick="simulateNav()">
+          <div class="nav-empty-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <div class="nav-empty-text">Sin ruta activa</div>
+          <div class="nav-empty-sub">Toca para abrir navegación</div>
+        </button>
+        <!-- Nav activa (aparece al tocar, demo) -->
+        <div class="nav-active" id="nav-active-zone" style="display:none">
+          <div class="nav-row">
+            <div class="nav-icon-wrap">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </div>
+            <div>
+              <div class="nav-title">San José Centro</div>
+              <div class="nav-sub">Ruta activa · Autopista</div>
+            </div>
+          </div>
+          <div class="nav-pills">
+            <div class="nav-pill"><strong>34</strong>min</div>
+            <div class="nav-pill"><strong>28</strong>km</div>
+            <div class="nav-pill"><strong>4:55</strong>ETA</div>
+          </div>
+        </div>
+      </div>
+      <div class="apps-right">
+        <button class="app">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+          <span>Alertas</span>
+        </button>
+        <button class="app">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></div>
+          <span>Agenda</span>
+        </button>
+        <button class="app">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11L3 12v8h2v-1h14v1h2v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
+          <span>Vehículo</span>
+        </button>
+        <button class="app">
+          <div class="app-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+          <span>Waze</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BARRA INFERIOR -->
+  <div class="bottom">
+    <button class="bb-home">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </button>
+    <button class="bba" id="btn-cam">
+      <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      <span>Cámara</span>
+    </button>
+    <!-- PUNTO 7 — Modo noche funcional -->
+    <button class="bba" id="btn-night" onclick="toggleNight()">
+      <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+      <span>Noche</span>
+    </button>
+    <div class="vsep"></div>
+    <button class="bba on" id="btn-bt">
+      <svg viewBox="0 0 24 24"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29z"/></svg>
+      <span>BT</span>
+    </button>
+    <button class="bba on" id="btn-wifi">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <span>WiFi</span>
+    </button>
+    <div class="vsep"></div>
+    <button class="bba">
+      <svg viewBox="0 0 24 24"><path d="M10 20H8V4h2v16zm-4-8H4v8h2v-8zM16 4h-2v16h2V4zm4 4h-2v12h2V8z"/></svg>
+      <span>EQ</span>
+    </button>
+    <button class="bba">
+      <svg viewBox="0 0 24 24"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
+      <span>Brillo</span>
+    </button>
+    <button class="bba">
+      <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      <span>Mirror</span>
+    </button>
+    <div class="vsep"></div>
+    <button class="bba">
+      <svg viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+      <span>Apps</span>
+    </button>
+    <div class="bb-flex"></div>
+    <div class="bb-vol">
+      <div class="vol-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg></div>
+      <button class="vol-btn" id="vol-down">−</button>
+      <div class="vol-display" id="vol-num">18 / 30</div>
+      <button class="vol-btn" id="vol-up">＋</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Reloj ──
+const D=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function p(n){return String(n).padStart(2,'0')}
+function tick(){
+  const t=new Date(),h=t.getHours(),m=t.getMinutes();
+  const ts=p(h)+':'+p(m);
+  document.getElementById('clk').textContent=ts;
+  document.getElementById('sbt').textContent=ts;
+  const dn=D[t.getDay()],mn=M[t.getMonth()];
+  document.getElementById('sbd').textContent=
+    dn.charAt(0).toUpperCase()+dn.slice(1,3)+', '+t.getDate()+' '+
+    mn.charAt(0).toUpperCase()+mn.slice(1,3);
+  document.getElementById('cld').textContent=
+    dn+', '+t.getDate()+' de '+mn+' de '+t.getFullYear();
+}
+tick();setInterval(tick,1000);
+
+// ── PUNTO 2 — Velocidad GPS ──
+const speedEl=document.getElementById('gps-speed');
+const limitEl=document.getElementById('speed-limit');
+let gpsAvailable=false;
+// Intenta usar GPS real
+if(navigator.geolocation){
+  navigator.geolocation.watchPosition(pos=>{
+    const spd=pos.coords.speed;
+    if(spd!==null && spd>=0){
+      gpsAvailable=true;
+      speedEl.textContent=Math.round(spd*3.6); // m/s → km/h
+    }
+  },{enableHighAccuracy:true,timeout:5000});
+}
+// Si no hay GPS (demo en browser), simula velocidad suave
+if(!gpsAvailable){
+  let demoSpd=0,demoDir=1;
+  setInterval(()=>{
+    demoSpd+=demoDir*(Math.random()*4-1);
+    if(demoSpd>85)demoDir=-1;
+    if(demoSpd<0){demoSpd=0;demoDir=1;}
+    if(!gpsAvailable) speedEl.textContent=Math.round(demoSpd);
+    // Aviso visual si supera límite
+    const lim=parseInt(limitEl.textContent)||60;
+    limitEl.style.borderColor=demoSpd>lim?'rgba(255,80,60,.80)':'rgba(255,200,80,.55)';
+    limitEl.style.color=demoSpd>lim?'rgba(255,100,80,.90)':'rgba(255,220,100,.70)';
+    limitEl.style.background=demoSpd>lim?'rgba(255,60,30,.15)':'rgba(255,200,80,.08)';
+  },800);
+}
+
+// ── Visualizador audio ──
+const viz=document.getElementById('aviz');
+const hts=[6,12,20,26,18,30,24,16,28,22,14,26,18,34,26,16,22,12,18,24,28,20,14,26,10,22,30,18];
+hts.forEach(h=>{
+  const b=document.createElement('div');b.className='avb';
+  b.style.setProperty('--h',h+'px');
+  b.style.setProperty('--d',(.28+Math.random()*.55).toFixed(2)+'s');
+  viz.appendChild(b);
+});
+
+// ── Toggles BT / WiFi ──
+['btn-bt','btn-wifi'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('click',()=>el.classList.toggle('on'));
+});
+
+// ── PUNTO 7 — Modo noche funcional ──
+function toggleNight(){
+  const root=document.getElementById('root');
+  const btn=document.getElementById('btn-night');
+  root.classList.toggle('night-mode');
+  btn.classList.toggle('on');
+}
+
+// ── Android Auto tap ──
+document.getElementById('aa-btn').addEventListener('click',function(){
+  this.style.opacity='.5';setTimeout(()=>this.style.opacity='1',1200);
+});
+
+// ── Tab switcher ──
+function switchTab(name){
+  ['aa','radio'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===name);
+    document.getElementById('pane-'+t).classList.toggle('active',t===name);
+  });
+}
+
+// ── PUNTO 5 — Presets radio ──
+function setPreset(btn,freq,station){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-preset'));
+  btn.classList.add('active-preset');
+  document.getElementById('radio-freq-disp').textContent=freq;
+  document.getElementById('radio-station-disp').textContent=station;
+}
+
+// ── PUNTO 4 — Navegación demo ──
+function simulateNav(){
+  document.getElementById('nav-empty-btn').style.display='none';
+  document.getElementById('nav-active-zone').style.display='flex';
+}
+
+// ── PUNTO 3 — Overlay llamada entrante ──
+// Demo: tocar el botón de Teléfono simula llamada entrante
+let callTimer=null;
+document.getElementById('btn-demo-call').addEventListener('click',()=>{
+  showCall('María González');
+});
+function showCall(name){
+  document.getElementById('caller-name').textContent=name;
+  document.getElementById('call-overlay').classList.add('visible');
+  if(callTimer) clearTimeout(callTimer);
+  callTimer=setTimeout(dismissCall,12000); // auto-dismiss en 12s
+}
+function dismissCall(){
+  document.getElementById('call-overlay').classList.remove('visible');
+  if(callTimer){clearTimeout(callTimer);callTimer=null;}
+}
+
+// ── Volumen ──
+let vol=18,volMax=30;
+const volNum=document.getElementById('vol-num');
+function renderVol(){volNum.textContent=vol+' / '+volMax;}
+document.getElementById('vol-up').addEventListener('click',()=>{if(vol<volMax){vol++;renderVol();}});
+document.getElementById('vol-down').addEventListener('click',()=>{if(vol>0){vol--;renderVol();}});
+renderVol();
+</script>
