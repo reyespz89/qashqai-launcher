@@ -19,13 +19,22 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          accept-android-sdk-licenses: true
+      - name: Aceptar licencias Android SDK
+        run: |
+          mkdir -p "$ANDROID_HOME/licenses"
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license"
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" >> "$ANDROID_HOME/licenses/android-sdk-license"
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
+          echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > "$ANDROID_HOME/licenses/google-gdk-license"
+          echo "SDK_ROOT=$ANDROID_HOME"
+          ls "$ANDROID_HOME/build-tools/" || echo "build-tools no encontrado"
 
-      - name: Aceptar licencias SDK manualmente (fallback)
-        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+      - name: Instalar plataforma y build-tools
+        run: |
+          SDKMGR=$(find $ANDROID_HOME -name "sdkmanager" | head -1)
+          echo "Usando sdkmanager: $SDKMGR"
+          yes | $SDKMGR --licenses 2>/dev/null || true
+          $SDKMGR "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -10
 
       - name: Dar permisos a Gradle
         run: chmod +x gradlew
