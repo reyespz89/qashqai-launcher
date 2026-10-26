@@ -24,7 +24,7 @@ jobs:
         with:
           accept-android-sdk-licenses: true
 
-      - name: Aceptar licencias SDK
+      - name: Aceptar licencias SDK manualmente (fallback)
         run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Dar permisos a Gradle
@@ -36,6 +36,6 @@ jobs:
       - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
-          name: qashqai-launcher-v17
+          name: qashqai-launcher-v18
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30

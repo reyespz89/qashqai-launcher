@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+﻿apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 34
@@ -6,19 +6,15 @@ android {
 
     defaultConfig {
         applicationId "com.emiliano.qashqailauncher"
-        minSdkVersion 26          // Android 8+ — tu radio tiene Android 15
+        minSdkVersion 26
         targetSdkVersion 34
-        versionCode 17            // v17 del mockup
-        versionName "1.7"
+        versionCode 18
+        versionName "1.8"
     }
 
     buildTypes {
-        release {
-            minifyEnabled false
-        }
-        debug {
-            applicationIdSuffix ""
-        }
+        release { minifyEnabled false }
+        debug { applicationIdSuffix "" }
     }
 
     compileOptions {
@@ -26,14 +22,9 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    // Assets: el HTML del launcher
     sourceSets {
-        main {
-            assets.srcDirs = ['src/main/assets']
-        }
+        main { assets.srcDirs = ['src/main/assets'] }
     }
 }
 
-dependencies {
-    // Sin dependencias externas — WebView es parte de Android SDK
-}
+dependencies {}
