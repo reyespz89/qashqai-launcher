@@ -26,21 +26,21 @@ jobs:
           echo "84831b9409646a918e30573bab4c9c91346d8abd" >> "$ANDROID_HOME/licenses/android-sdk-license"
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
           echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > "$ANDROID_HOME/licenses/google-gdk-license"
-          echo "SDK_ROOT=$ANDROID_HOME"
-          ls "$ANDROID_HOME/build-tools/" || echo "build-tools no encontrado"
 
       - name: Instalar plataforma y build-tools
         run: |
           SDKMGR=$(find $ANDROID_HOME -name "sdkmanager" | head -1)
-          echo "Usando sdkmanager: $SDKMGR"
           yes | $SDKMGR --licenses 2>/dev/null || true
-          $SDKMGR "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -10
+          $SDKMGR "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -5
 
-      - name: Dar permisos a Gradle
-        run: chmod +x gradlew
+      - name: Instalar Gradle 8.4
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip -O /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /opt/gradle
+          echo "/opt/gradle/gradle-8.4/bin" >> $GITHUB_PATH
 
-      - name: Compilar APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+      - name: Compilar APK con Gradle directo
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Subir APK
         uses: actions/upload-artifact@v4
